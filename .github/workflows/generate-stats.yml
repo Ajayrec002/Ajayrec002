@@ -1,0 +1,25 @@
+name: Generate Profile Stats
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # runs once daily at midnight UTC
+  workflow_dispatch:        # lets you trigger it manually anytime
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate stats image
+        uses: jstrieb/github-stats@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit generated files
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add generated/
+          git commit -m "Update stats" || echo "No changes to commit"
+          git push
